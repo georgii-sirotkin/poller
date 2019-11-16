@@ -17,7 +17,7 @@ class AddPoll extends React.Component {
       ]
     };
 
-    this.handleAddQuestionButtonClick = this.handleAddQuestionButtonClick.bind(this);
+    this.addQuestion = this.addQuestion.bind(this);
   }
 
   handleQuestionTextChange(index, text) {
@@ -26,10 +26,16 @@ class AddPoll extends React.Component {
     this.setState({questions});
   }
 
-  handleAddQuestionButtonClick() {
+  addQuestion() {
     this.setState({
       questions: this.state.questions.concat({...questionTemplate})
     });
+  }
+
+  removeQuestion(index) {
+    let questions = [...this.state.questions];
+    questions.splice(index, 1);
+    this.setState({questions});
   }
 
   render() {
@@ -37,7 +43,8 @@ class AddPoll extends React.Component {
       return <QuestionInput
               question={question}
               key={index}
-              onQuestionTextChange={(e) => this.handleQuestionTextChange(index, e.target.value)} />
+              onQuestionTextChange={(e) => this.handleQuestionTextChange(index, e.target.value)}
+              onRemoveQuestion={() => this.removeQuestion(index)}/>
     });
 
     return (
@@ -45,7 +52,7 @@ class AddPoll extends React.Component {
           <h1 className="h2">New Poll</h1>
           {questions}
           <div>
-            <Button variant="primary" onClick={this.handleAddQuestionButtonClick}>Add question</Button>
+            <Button variant="outline-primary" onClick={this.addQuestion}>Add question</Button>
           </div>
         </>
     )

@@ -2,11 +2,11 @@ import React from 'react';
 import Polls from './Polls';
 import AddPoll from './AddPoll';
 import {
-    BrowserRouter as Router,
-    Switch,
-    Route,
-    Link,
-    NavLink
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link,
+  NavLink
 } from "react-router-dom";
 
 
@@ -44,14 +44,14 @@ function App() {
           </nav>
 
           <main role="main" className="col-md-9 ml-sm-auto col-lg-10 px-4">
-              <Switch>
-                  <Route path="/create">
-                      <AddPoll />
-                  </Route>
-                  <Route path="/">
-                      <Polls />
-                  </Route>
-              </Switch>
+            <Switch>
+              <Route path="/create">
+                <AddPoll />
+              </Route>
+              <Route path="/">
+                <Polls />
+              </Route>
+            </Switch>
           </main>
         </div>
       </div>

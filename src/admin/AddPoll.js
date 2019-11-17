@@ -17,7 +17,7 @@ export default class AddPoll extends React.Component {
   createNewQuestion() {
     const question = {
       id: nanoid(),
-      type: 'multiple',
+      type: 'radio',
       text: ''
     };
 
@@ -50,7 +50,11 @@ export default class AddPoll extends React.Component {
   }
 
   getInitialDataForQuestion(question) {
-    if (question.type === 'multiple') {
+    if (question.type === 'radio' || question.type === 'checkbox') {
+      if (question.data && question.data.options) {
+        return question.data;
+      }
+
       return {
         options: [{
           id: nanoid(),
@@ -89,7 +93,11 @@ export default class AddPoll extends React.Component {
     return (
         <>
           <h1 className="h2">New Poll</h1>
-          {questions}
+          <div className="row">
+            <div className="col-lg-7">
+              {questions}
+            </div>
+          </div>
           <div>
             <Button variant="outline-primary" onClick={this.addQuestion}>Add question</Button>
           </div>

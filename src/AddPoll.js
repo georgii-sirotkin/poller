@@ -1,50 +1,89 @@
 import React from 'react';
-import QuestionInput from './QuestionInput';
+import QuestionBuilder from './QuestionBuilder';
 import Button from 'react-bootstrap/Button';
+import nanoid from 'nanoid';
 
-const questionTemplate = {
-  type: 'Multiple',
-  text: ''
-};
-
-class AddPoll extends React.Component {
+export default class AddPoll extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      questions: [
-        {...questionTemplate}
-      ]
+      questions: [this.createNewQuestion()]
     };
 
     this.addQuestion = this.addQuestion.bind(this);
   }
 
-  handleQuestionTextChange(index, text) {
-    const questions = [...this.state.questions];
-    questions[index].text = text;
+  createNewQuestion() {
+    const question = {
+      id: nanoid(),
+      type: 'multiple',
+      text: ''
+    };
+
+    question.data = this.getInitialDataForQuestion(question);
+    return question;
+  }
+
+  handleQuestionTextChange(id, text) {
+    const questions = this.state.questions.map(question => (question.id === id) ? {...question, text} : question);
     this.setState({questions});
+  }
+
+  handleQuestionTypeChange(id, type) {
+    const questions = this.state.questions.map(question => {
+      if (question.id !== id) {
+        return question;
+      }
+
+      const changedQuestion = {...question, type};
+      changedQuestion.data = this.getInitialDataForQuestion(changedQuestion);
+      return changedQuestion;
+    });
+
+    this.setState({questions});
+  }
+
+  handleQuestionDataChange(id, data) {
+    const questions = this.state.questions.map(question => (question.id === id) ? {...question, data} : question);
+    this.setState({questions});
+  }
+
+  getInitialDataForQuestion(question) {
+    if (question.type === 'multiple') {
+      return {
+        options: [{
+          id: nanoid(),
+          text: 'Option 1'
+        }]
+      }
+    }
+
+    return {};
   }
 
   addQuestion() {
     this.setState({
-      questions: this.state.questions.concat({...questionTemplate})
+      questions: this.state.questions.concat(this.createNewQuestion())
     });
   }
 
-  removeQuestion(index) {
-    let questions = [...this.state.questions];
-    questions.splice(index, 1);
+  removeQuestion(id) {
+    const questions = this.state.questions.filter(question => question.id !== id);
     this.setState({questions});
   }
 
   render() {
-    const questions = this.state.questions.map((question, index) => {
-      return <QuestionInput
-              question={question}
-              key={index}
-              onQuestionTextChange={(e) => this.handleQuestionTextChange(index, e.target.value)}
-              onRemoveQuestion={() => this.removeQuestion(index)}/>
+    const questions = this.state.questions.map(question => {
+      return (
+        <QuestionBuilder
+          question={question}
+          key={question.id}
+          onTextChange={(e) => this.handleQuestionTextChange(question.id, e.target.value)}
+          onTypeChange={(e) => this.handleQuestionTypeChange(question.id, e.target.value)}
+          onDataChange={(data) => this.handleQuestionDataChange(question.id, data)}
+          onRemove={() => this.removeQuestion(question.id)}/>
+      );
     });
 
     return (
@@ -58,5 +97,3 @@ class AddPoll extends React.Component {
     )
   }
 }
-
-export default AddPoll;

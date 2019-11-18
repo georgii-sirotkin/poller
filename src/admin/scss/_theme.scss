@@ -8,6 +8,13 @@ body {
   vertical-align: text-bottom;
 }
 
+.btn:not(.btn-sm) {
+  .feather {
+    width: 18px;
+    height: 18px;
+  }
+}
+
 /*
  * Sidebar
  */

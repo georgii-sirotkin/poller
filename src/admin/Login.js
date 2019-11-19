@@ -19,6 +19,7 @@ class Login extends React.Component {
       email: '',
       password: '',
       loading: false,
+      invalidData: false
     };
 
     this.onEmailChange = this.onEmailChange.bind(this);
@@ -27,11 +28,17 @@ class Login extends React.Component {
   }
 
   onEmailChange(e) {
-    this.setState({email: e.target.value});
+    this.setState({
+      email: e.target.value,
+      invalidData: false
+    });
   }
 
   onPasswordChange(e) {
-    this.setState({password: e.target.value});
+    this.setState({
+      password: e.target.value,
+      invalidData: false
+    });
   }
 
   login(e) {
@@ -46,6 +53,18 @@ class Login extends React.Component {
     axios.post(url, data, {withCredentials: true})
         .then(response => {
           history.push('/admin');
+        })
+        .catch(error => {
+          if (error.response.status === 422) {
+            this.setState({
+              password: '',
+              invalidData: true
+            });
+
+            return;
+          }
+
+          alert('Something went wrong');
         });
   }
 
@@ -61,7 +80,9 @@ class Login extends React.Component {
                     value={this.state.email}
                     type="email"
                     onChange={this.onEmailChange}
-                    placeholder="Enter email" />
+                    placeholder="Enter email"
+                    className={this.state.invalidData ? 'is-invalid' : ''}
+                    required />
               </Form.Group>
 
               <Form.Group controlId="password">
@@ -70,7 +91,8 @@ class Login extends React.Component {
                     value={this.state.password}
                     type="password"
                     onChange={this.onPasswordChange}
-                    placeholder="Password" />
+                    placeholder="Password"
+                    required />
               </Form.Group>
               <Button
                   variant="primary"

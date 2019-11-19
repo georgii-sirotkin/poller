@@ -3,6 +3,7 @@ import axios from 'axios';
 import LoadingPage from './LoadingPage';
 import Polls from './Polls';
 import AddPoll from './AddPoll';
+import Config from '../Config';
 import {
   Switch,
   Route,
@@ -23,10 +24,14 @@ class Admin extends React.Component {
       isLoaded: false,
       user: null
     };
+
+    this.logOut = this.logOut.bind(this);
   }
 
   componentDidMount() {
-    axios.get('http://poll-api.test/api/auth/me', {withCredentials: true})
+    const url = Config.apiUrl + '/auth/me';
+
+    axios.get(url, {withCredentials: true})
       .then(response => {
         this.setState({
           isLoggedIn: true,
@@ -39,6 +44,16 @@ class Admin extends React.Component {
           isLoaded: true
         });
       });
+  }
+
+  logOut() {
+    const url = Config.apiUrl + '/auth/logout';
+    axios.get(url, {withCredentials: true});
+
+    this.setState({
+      isLoggedIn: false,
+      user: null
+    });
   }
 
   render() {
@@ -60,7 +75,7 @@ class Admin extends React.Component {
           <Link to={`${this.props.match.url}`} className="navbar-brand col-sm-3 col-md-2 mr-0">Dashboard</Link>
           <ul className="navbar-nav px-3">
             <li className="nav-item text-nowrap">
-              <a className="nav-link" href="#">Sign out</a>
+              <button className="nav-link btn btn-link" onClick={this.logOut}>Sign out</button>
             </li>
           </ul>
         </nav>

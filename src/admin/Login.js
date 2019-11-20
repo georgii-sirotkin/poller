@@ -56,7 +56,7 @@ class Login extends React.Component {
 
     axios.post(url, data, {withCredentials: true})
         .then(response => {
-          history.push('/admin');
+          history.push('/admin/polls');
         })
         .catch(error => {
           if (error.response.status === 422) {

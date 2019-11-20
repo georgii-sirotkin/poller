@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import LoadingPage from './LoadingPage';
+import LoadingPage from '../common/LoadingPage';
 import Polls from './Polls';
 import AddPoll from './AddPoll';
 import Config from '../Config';
@@ -12,8 +12,6 @@ import {
   Redirect,
   withRouter
 } from "react-router-dom";
-
-import './scss/app.scss';
 
 class Admin extends React.Component {
   constructor(props) {

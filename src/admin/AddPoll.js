@@ -96,7 +96,7 @@ export default class AddPoll extends React.Component {
       savingPoll: true
     });
 
-    const url = Config.apiUrl + '/polls';
+    const url = Config.apiUrl + '/admin/polls';
     const data = {
       name: this.state.name,
       questions: this.state.questions

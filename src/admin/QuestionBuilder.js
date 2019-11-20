@@ -43,7 +43,6 @@ export default class QuestionBuilder extends React.Component {
                 <option value="text">Short answer</option>
                 <option value="email">Email</option>
                 <option value="textarea">Paragraph</option>
-                <option value="range">Linear scale</option>
               </Form.Control>
             </Form.Group>
           </div>

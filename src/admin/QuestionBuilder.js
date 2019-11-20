@@ -29,7 +29,8 @@ export default class QuestionBuilder extends React.Component {
                   rows="1"
                   placeholder="Question"
                   value={this.props.question.text}
-                  onChange={this.props.onTextChange} />
+                  onChange={this.props.onTextChange}
+                  required />
             </Form.Group>
 
             <Form.Group className="col-lg-3">

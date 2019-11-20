@@ -43,6 +43,10 @@ class Login extends React.Component {
 
   login(e) {
     e.preventDefault();
+    this.setState({
+      loading: true
+    });
+
     const { history } = this.props;
     const url = Config.apiUrl + '/auth/login';
     const data = {
@@ -58,7 +62,8 @@ class Login extends React.Component {
           if (error.response.status === 422) {
             this.setState({
               password: '',
-              invalidData: true
+              invalidData: true,
+              loading: false
             });
 
             return;

@@ -1,12 +1,10 @@
 import React from 'react';
-import axios from 'axios';
 import {
   Link,
-  withRouter,
-  Route
+  withRouter
 } from "react-router-dom";
+import axios from 'axios';
 import Config from '../Config';
-import Poll from './Poll';
 
 class Polls extends React.Component {
   constructor(props) {
@@ -38,18 +36,6 @@ class Polls extends React.Component {
   }
 
   renderPolls() {
-    if (this.state.loadingPolls) {
-      return <div>Loading...</div>
-    }
-
-    if (!this.state.polls) {
-      return <div>Failed to load polls.</div>
-    }
-
-    if (!this.state.polls.length) {
-      return <div>No polls created yet.</div>
-    }
-
     return this.state.polls.map(poll => {
       const linkText = '#' + poll.id + ' ' + poll.name + ' (' + poll.responses_count + ' responses)';
 
@@ -64,16 +50,21 @@ class Polls extends React.Component {
   }
 
   render() {
-    const path = this.props.match.path;
+    if (this.state.loadingPolls) {
+      return <div>Loading...</div>
+    }
+
+    if (!this.state.polls) {
+      return <div>Failed to load polls.</div>
+    }
+
+    if (!this.state.polls.length) {
+      return <div>No polls created yet.</div>
+    }
 
     return (
       <>
-        <Route exact path={path}>
-          {this.renderPolls()}
-        </Route>
-        <Route path={`${path}/:id`}>
-          <Poll />
-        </Route>
+        {this.renderPolls()}
       </>
     );
   }

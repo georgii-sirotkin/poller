@@ -64,12 +64,12 @@ class Poll extends React.Component {
       const shareableUrl = window.location.protocol + '//' + window.location.host + '/polls/' + poll.access_token;
 
       return (
-        <>
+        <div className="mb-4">
           <h1>{poll.name}</h1>
           <strong>Shareable link:</strong> {shareableUrl}
           <h3 className="mt-4">Responses:</h3>
           {this.renderResponses()}
-        </>
+        </div>
       )
     }
   }

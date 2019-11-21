@@ -61,7 +61,7 @@ class Poll extends React.Component {
     }
 
     if (questionType === 'multipleChoice') {
-      answer.other = null;
+      answer.other = '';
 
       if (question.specialized_question.only_one_answer_allowed) {
         answer.value = '';

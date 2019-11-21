@@ -6,6 +6,7 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import axios from 'axios';
 import {
+  Redirect,
   withRouter
 } from "react-router-dom";
 
@@ -47,7 +48,6 @@ class Login extends React.Component {
       loading: true
     });
 
-    const { history } = this.props;
     const url = Config.apiUrl + '/auth/login';
     const data = {
       email: this.state.email,
@@ -56,7 +56,7 @@ class Login extends React.Component {
 
     axios.post(url, data, {withCredentials: true})
         .then(response => {
-          history.push('/admin/polls');
+          this.props.onLogIn(response.data);
         })
         .catch(error => {
           if (error.response.status === 422) {
@@ -74,6 +74,10 @@ class Login extends React.Component {
   }
 
   render() {
+    if (this.props.isLoggedIn) {
+      return <Redirect to="/admin/dashboard/polls" />
+    }
+
     return (
       <Container className="mt-5 pt-5">
         <Row>

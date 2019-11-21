@@ -130,7 +130,7 @@ class Poll extends React.Component {
         <Form onSubmit={this.saveResponse}>
           {this.renderAnswerInputs()}
           <hr className="mt-5 mb-4" />
-          <div className="text-right">
+          <div className="text-right mb-4">
             <Button
               variant="primary"
               type="submit"

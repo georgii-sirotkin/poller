@@ -1,5 +1,6 @@
 import React from 'react';
 import Form from 'react-bootstrap/Form';
+import orderBy from 'lodash.orderby';
 
 export default class MultipleChoiceInput extends React.Component {
   constructor(props) {
@@ -54,9 +55,10 @@ export default class MultipleChoiceInput extends React.Component {
 
   renderInputs() {
     const specializedQuestion = this.props.question.specialized_question;
+    const sortedOptions = orderBy(specializedQuestion.answer_options, ['is_other'], ['asc']);
     const inputType = specializedQuestion.only_one_answer_allowed ? 'radio' : 'checkbox';
 
-    return specializedQuestion.answer_options.map(answerOption => {
+    return sortedOptions.map(answerOption => {
       let isChecked = '';
 
       if (inputType === 'radio') {

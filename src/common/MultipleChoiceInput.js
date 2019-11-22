@@ -73,6 +73,7 @@ export default class MultipleChoiceInput extends React.Component {
           type={inputType}
           label={answerOption.text}
           checked={isChecked}
+          id={`answer-option-${answerOption.id}`}
           onChange={(e) => this.handleChange(answerOption, e)} />
       );
     });

@@ -59,7 +59,7 @@ export default class MultipleChoiceInput extends React.Component {
     const inputType = specializedQuestion.only_one_answer_allowed ? 'radio' : 'checkbox';
 
     return sortedOptions.map(answerOption => {
-      let isChecked = '';
+      let isChecked;
 
       if (inputType === 'radio') {
         isChecked = this.props.answer.value === answerOption.id

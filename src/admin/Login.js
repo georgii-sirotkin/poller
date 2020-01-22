@@ -1,120 +1,92 @@
-import React from 'react';
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
+import React, { useState } from 'react';
+import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import axios from 'axios';
-import {
-  Redirect,
-  withRouter
-} from "react-router-dom";
-
+import { Redirect } from "react-router-dom";
 import Config from '../Config';
 
-class Login extends React.Component {
-  constructor(props) {
-    super(props);
+export default function Login({ isLoggedIn, onLogIn }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isInvalidData, setIsInvalidData] = useState(false);
 
-    this.state = {
-      email: '',
-      password: '',
-      loading: false,
-      invalidData: false
-    };
-
-    this.onEmailChange = this.onEmailChange.bind(this);
-    this.onPasswordChange = this.onPasswordChange.bind(this);
-    this.login = this.login.bind(this);
+  function handleEmailChange(e) {
+    setEmail(e.target.value);
+    setIsInvalidData(false);
   }
 
-  onEmailChange(e) {
-    this.setState({
-      email: e.target.value,
-      invalidData: false
-    });
+  function handlePasswordChange(e) {
+    setPassword(e.target.value);
+    setIsInvalidData(false);
   }
 
-  onPasswordChange(e) {
-    this.setState({
-      password: e.target.value,
-      invalidData: false
-    });
-  }
-
-  login(e) {
+  function login(e) {
     e.preventDefault();
-    this.setState({
-      loading: true
-    });
 
-    const url = Config.apiUrl + '/auth/login';
-    const data = {
-      email: this.state.email,
-      password: this.state.password
-    };
-
-    axios.post(url, data, {withCredentials: true})
-        .then(response => {
-          this.props.onLogIn(response.data);
-        })
-        .catch(error => {
-          if (error.response.status === 422) {
-            this.setState({
-              password: '',
-              invalidData: true,
-              loading: false
-            });
-
-            return;
-          }
-
-          alert('Something went wrong');
-        });
-  }
-
-  render() {
-    if (this.props.isLoggedIn) {
-      return <Redirect to="/admin/dashboard/polls" />
+    if (isInvalidData) {
+      return;
     }
 
-    return (
-      <Container className="mt-5 pt-5">
-        <Row>
-          <Col xl={{span: 4, offset: 4}}>
-            <Form onSubmit={this.login}>
-              <Form.Group controlId="email">
-                <Form.Label>Email address</Form.Label>
-                <Form.Control
-                    value={this.state.email}
-                    type="email"
-                    onChange={this.onEmailChange}
-                    placeholder="Enter email"
-                    className={this.state.invalidData ? 'is-invalid' : ''}
-                    required />
-              </Form.Group>
+    setIsLoading(true);
 
-              <Form.Group controlId="password">
-                <Form.Label>Password</Form.Label>
-                <Form.Control
-                    value={this.state.password}
-                    type="password"
-                    onChange={this.onPasswordChange}
-                    placeholder="Password"
-                    required />
-              </Form.Group>
-              <Button
-                  variant="primary"
-                  type="submit"
-                  disabled={this.state.loading}>
-                Submit
-              </Button>
-            </Form>
-          </Col>
-        </Row>
-      </Container>
-    )
+    const url = Config.apiUrl + '/auth/login';
+    const data = { email, password };
+
+    axios.post(url, data, { withCredentials: true })
+      .then(response => {
+        setIsLoading(false);
+        onLogIn(response.data);
+      })
+      .catch(error => {
+        if (error.response.status === 422) {
+          setPassword('');
+          setIsInvalidData(true);
+          setIsLoading(false);
+          return;
+        }
+
+        alert('Something went wrong');
+      });
   }
-}
 
-export default withRouter(Login);
+  if (isLoggedIn) {
+    return <Redirect to="/admin/dashboard/polls" />
+  }
+
+  return (
+    <Container className="mt-5 pt-5">
+      <Row>
+        <Col xl={{span: 4, offset: 4}}>
+          <Form onSubmit={login}>
+            <Form.Group controlId="email">
+              <Form.Label>Email address</Form.Label>
+              <Form.Control
+                  value={email}
+                  type="email"
+                  onChange={handleEmailChange}
+                  placeholder="Enter email"
+                  className={isInvalidData ? 'is-invalid' : ''}
+                  required />
+            </Form.Group>
+
+            <Form.Group controlId="password">
+              <Form.Label>Password</Form.Label>
+              <Form.Control
+                  value={password}
+                  type="password"
+                  onChange={handlePasswordChange}
+                  placeholder="Password"
+                  required />
+            </Form.Group>
+            <Button
+                variant="primary"
+                type="submit"
+                disabled={isLoading}>
+              Submit
+            </Button>
+          </Form>
+        </Col>
+      </Row>
+    </Container>
+  );
+};

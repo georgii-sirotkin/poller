@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import LoadingPage from '../common/LoadingPage';
 import Login from './Login';
@@ -7,71 +7,50 @@ import Config from '../Config';
 import {
   Switch,
   Route,
-  withRouter
+  useRouteMatch
 } from "react-router-dom";
 
-class Admin extends React.Component {
-  constructor(props) {
-    super(props);
+export default function Admin() {
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const match = useRouteMatch();
 
-    this.state = {
-      isLoggedIn: false,
-      isLoaded: false,
-      user: null
-    };
-
-    this.handleLogIn = this.handleLogIn.bind(this);
-    this.handleLogOut = this.handleLogOut.bind(this);
-  }
-
-  componentDidMount() {
+  useEffect(() => {
     const url = Config.apiUrl + '/auth/me';
 
-    axios.get(url, {withCredentials: true})
+    axios.get(url, { withCredentials: true })
       .then(response => {
-        this.setState({
-          isLoggedIn: true,
-          isLoaded: true,
-          user: response.data
-        });
+        setIsLoading(false);
+        setUser(response.data);
       })
       .catch(error => {
-        this.setState({
-          isLoaded: true
-        });
+        setIsLoading(false);
       });
+
+  }, []);
+
+  function handleLogIn(user) {
+    setUser(user);
   }
 
-  handleLogIn(user) {
-    this.setState({
-      user: user,
-      isLoggedIn: true
-    })
+  function handleLogOut() {
+    setUser(null);
   }
 
-  handleLogOut() {
-    this.setState({
-      isLoggedIn: false,
-      user: null
-    });
+  if (isLoading) {
+    return <LoadingPage />
   }
 
-  render() {
-    if (!this.state.isLoaded) {
-      return <LoadingPage />
-    }
+  const isLoggedIn = !!user;
 
-    return (
-      <Switch>
-        <Route path={`${this.props.match.url}/login`}>
-          <Login onLogIn={this.handleLogIn} isLoggedIn={this.state.isLoggedIn} />
-        </Route>
-        <Route path={`${this.props.match.url}/dashboard`}>
-          <Dashboard onLogOut={this.handleLogOut} isLoggedIn={this.state.isLoggedIn} />
-        </Route>
-      </Switch>
-    )
-  }
+  return (
+    <Switch>
+      <Route path={`${match.url}/login`}>
+        <Login onLogIn={handleLogIn} isLoggedIn={isLoggedIn} />
+      </Route>
+      <Route path={`${match.url}/dashboard`}>
+        <Dashboard onLogOut={handleLogOut} isLoggedIn={isLoggedIn} />
+      </Route>
+    </Switch>
+  );
 }
-
-export default withRouter(Admin);

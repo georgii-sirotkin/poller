@@ -20,8 +20,8 @@ export default function Admin() {
 
     axios.get(url, { withCredentials: true })
       .then(response => {
-        setIsLoading(false);
         setUser(response.data);
+        setIsLoading(false);
       })
       .catch(error => {
         setIsLoading(false);

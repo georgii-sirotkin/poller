@@ -1,166 +1,121 @@
-import React from 'react';
+import React, { useState } from 'react';
 import QuestionBuilder from './QuestionBuilder';
-import Button from 'react-bootstrap/Button';
-import Alert from 'react-bootstrap/Alert';
-import Form from 'react-bootstrap/Form';
+import { Button, Alert, Form } from 'react-bootstrap';
 import nanoid from 'nanoid';
 import Config from '../Config';
 import axios from 'axios';
 
-export default class AddPoll extends React.Component {
-  constructor(props) {
-    super(props);
+export default function AddPoll() {
+  const [name, setName] = useState('');
+  const [questions, setQuestions] = useState(() => [createNewQuestion()]);
+  const [createdPoll, setCreatedPoll] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
 
-    this.state = {
-      name: '',
-      questions: [this.createNewQuestion()],
-      createdPoll: null,
-      savingPoll: false
-    };
-
-    this.addQuestion = this.addQuestion.bind(this);
-    this.handlePollNameChange = this.handlePollNameChange.bind(this);
-    this.createPoll = this.createPoll.bind(this);
+  function handlePollNameChange(e) {
+    setName(e.target.value);
   }
 
-  createNewQuestion() {
-    const question = {
-      id: nanoid(),
-      type: 'radio',
-      text: ''
-    };
-
-    question.data = this.getInitialDataForQuestion(question);
-    return question;
+  function handleQuestionTextChange(id, text) {
+    setQuestions(questions => questions.map(
+      question => (question.id === id) ? {...question, text} : question
+    ));
   }
 
-  handlePollNameChange(e) {
-    this.setState({name: e.target.value});
-  }
+  function handleQuestionTypeChange(id, type) {
+    setQuestions(questions => questions.map(
+      question => {
+        if (question.id !== id) {
+          return question;
+        }
 
-  handleQuestionTextChange(id, text) {
-    const questions = this.state.questions.map(question => (question.id === id) ? {...question, text} : question);
-    this.setState({questions});
-  }
-
-  handleQuestionTypeChange(id, type) {
-    const questions = this.state.questions.map(question => {
-      if (question.id !== id) {
-        return question;
+        const changedQuestion = {...question, type};
+        changedQuestion.data = getInitialDataForQuestion(changedQuestion);
+        return changedQuestion;
       }
-
-      const changedQuestion = {...question, type};
-      changedQuestion.data = this.getInitialDataForQuestion(changedQuestion);
-      return changedQuestion;
-    });
-
-    this.setState({questions});
+    ));
   }
 
-  handleQuestionDataChange(id, data) {
-    const questions = this.state.questions.map(question => (question.id === id) ? {...question, data} : question);
-    this.setState({questions});
+  function handleQuestionDataChange(id, data) {
+    setQuestions(questions => questions.map(
+      question => (question.id === id) ? {...question, data} : question
+    ));
   }
 
-  getInitialDataForQuestion(question) {
-    if (question.type === 'radio' || question.type === 'checkbox') {
-      if (question.data && question.data.options) {
-        return question.data;
-      }
-
-      return {
-        options: [{
-          id: nanoid(),
-          text: 'Option 1'
-        }]
-      }
-    }
-
-    return {};
+  function addQuestion() {
+    setQuestions(questions => questions.concat(createNewQuestion()));
   }
 
-  addQuestion() {
-    this.setState({
-      questions: this.state.questions.concat(this.createNewQuestion())
-    });
+  function removeQuestion(id) {
+    setQuestions(questions => questions.filter(
+      question => question.id !== id
+    ));
   }
 
-  removeQuestion(id) {
-    const questions = this.state.questions.filter(question => question.id !== id);
-    this.setState({questions});
-  }
-
-  createPoll(e) {
+  function createPoll(e) {
     e.preventDefault();
-    this.setState({
-      savingPoll: true
-    });
+    setIsSaving(true);
 
     const url = Config.apiUrl + '/admin/polls';
     const data = {
-      name: this.state.name,
-      questions: this.state.questions
+      name,
+      questions
     };
 
     axios.post(url, data, {withCredentials: true})
-        .then(response => {
-          this.setState({
-            createdPoll: response.data,
-            savingPoll: false
-          });
-        })
-        .catch(error => {
-          this.setState({
-            savingPoll: false
-          });
+      .then(response => {
+        setCreatedPoll(response.data);
+        setIsSaving(false);
+      })
+      .catch(error => {
+        setIsSaving(false);
 
-          if (error.response.status === 422) {
-            alert('Invalid data');
-            return;
-          }
+        if (error.response.status === 422) {
+          alert('Invalid data');
+          return;
+        }
 
-          if (error.response.status === 401) {
-            alert('Session expired');
-            window.location.reload(false);
-            return;
-          }
+        if (error.response.status === 401) {
+          alert('Session expired');
+          window.location.reload(false);
+          return;
+        }
 
-          alert('Something went wrong');
-        })
+        alert('Something went wrong');
+      })
   }
 
-  getPageContent() {
-    if (this.state.createdPoll) {
-      const url = window.location.protocol + '//' + window.location.host + '/polls/' + this.state.createdPoll.access_token;
+  function renderPageContent() {
+    if (createdPoll) {
+      const url = window.location.protocol + '//' + window.location.host + '/polls/' + createdPoll.access_token;
 
       return (
-          <Alert variant="success" className="mt-4">
-            Poll was successfully created! Shareable link: {url}<br />
-          </Alert>
+        <Alert variant="success" className="mt-4">
+          Poll was successfully created! Shareable link: {url}<br />
+        </Alert>
       );
     }
 
     return (
-      <Form onSubmit={this.createPoll}>
+      <Form onSubmit={createPoll}>
         <div className="row">
           <div className="col-lg-7">
             <div className="mt-3 mb-4">
               <Form.Control
                   size="lg"
                   type="text"
-                  value={this.state.name}
-                  onChange={this.handlePollNameChange}
+                  value={name}
+                  onChange={handlePollNameChange}
                   placeholder="Poll name"
                   required />
             </div>
-            {this.renderQuestions()}
+            {renderQuestions()}
             <div>
-              <Button variant="outline-primary" onClick={this.addQuestion}>
+              <Button variant="outline-primary" onClick={addQuestion}>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-plus align-text-top"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Add question</Button>
             </div>
             <hr className="mt-5 mb-4" />
             <div className="text-right mb-5 pb-5">
-              <Button type="submit" variant="outline-primary" size="lg" disabled={this.state.savingPoll}>
+              <Button type="submit" variant="outline-primary" size="lg" disabled={isSaving}>
                 Save poll
               </Button>
             </div>
@@ -170,26 +125,52 @@ export default class AddPoll extends React.Component {
     )
   }
 
-  renderQuestions() {
-    return this.state.questions.map(question => {
+  function renderQuestions() {
+    return questions.map(question => {
       return (
           <QuestionBuilder
-              question={question}
-              key={question.id}
-              onTextChange={(e) => this.handleQuestionTextChange(question.id, e.target.value)}
-              onTypeChange={(e) => this.handleQuestionTypeChange(question.id, e.target.value)}
-              onDataChange={(data) => this.handleQuestionDataChange(question.id, data)}
-              onRemove={() => this.removeQuestion(question.id)}/>
+            question={question}
+            key={question.id}
+            onTextChange={(e) => handleQuestionTextChange(question.id, e.target.value)}
+            onTypeChange={(e) => handleQuestionTypeChange(question.id, e.target.value)}
+            onDataChange={(data) => handleQuestionDataChange(question.id, data)}
+            onRemove={() => removeQuestion(question.id)}/>
       );
     });
   }
 
-  render() {
-    return (
-      <>
-        <h1 className="h2">New Poll</h1>
-        {this.getPageContent()}
-      </>
-    )
+  return (
+    <>
+      <h1 className="h2">New Poll</h1>
+      {renderPageContent()}
+    </>
+  );
+}
+
+function createNewQuestion() {
+  const question = {
+    id: nanoid(),
+    type: 'radio',
+    text: ''
+  };
+
+  question.data = getInitialDataForQuestion(question);
+  return question;
+}
+
+function getInitialDataForQuestion(question) {
+  if (question.type === 'radio' || question.type === 'checkbox') {
+    if (question.data && question.data.options) {
+      return question.data;
+    }
+
+    return {
+      options: [{
+        id: nanoid(),
+        text: 'Option 1'
+      }]
+    }
   }
+
+  return {};
 }

@@ -1,73 +1,56 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Link,
-  withRouter
+  useRouteMatch
 } from "react-router-dom";
 import axios from 'axios';
 import Config from '../Config';
 
-class Polls extends React.Component {
-  constructor(props) {
-    super(props);
+export default function Polls()
+{
+  const [polls, setPolls] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const match = useRouteMatch();
 
-    this.state = {
-      polls: null,
-      loadingPolls: true,
-    };
-  }
-
-  componentDidMount() {
+  useEffect(() => {
     const url = Config.apiUrl + '/admin/polls';
 
-    axios.get(url, {withCredentials: true})
-        .then(response => {
-          this.setState({
-            polls: response.data,
-            loadingPolls: false
-          });
-        })
-        .catch(error => {
-          alert('Something went wrong');
+    axios.get(url, { withCredentials: true })
+      .then(response => {
+        setPolls(response.data);
+        setIsLoading(false);
+      })
+      .catch(error => {
+        alert('Something went wrong');
+        setIsLoading(false);
+      })
+  }, []);
 
-          this.setState({
-            loadingPolls: false
-          });
-        });
+  if (isLoading) {
+    return <div>Loading...</div>
   }
 
-  renderPolls() {
-    return this.state.polls.map(poll => {
-      const linkText = '#' + poll.id + ' ' + poll.name + ' (' + poll.responses_count + ' responses)';
-
-      return (
-        <div key={poll.id}>
-          <Link to={`${this.props.match.url}/${poll.id}`} className="lead">
-            {linkText}
-          </Link>
-        </div>
-      )
-    });
+  if (!polls) {
+    return <div>Failed to load polls.</div>
   }
 
-  render() {
-    if (this.state.loadingPolls) {
-      return <div>Loading...</div>
-    }
-
-    if (!this.state.polls) {
-      return <div>Failed to load polls.</div>
-    }
-
-    if (!this.state.polls.length) {
-      return <div>No polls created yet.</div>
-    }
-
-    return (
-      <>
-        {this.renderPolls()}
-      </>
-    );
+  if (!polls.length) {
+    return <div>No polls created yet.</div>
   }
+
+  return (
+    <>
+      {polls.map(poll => {
+        const linkText = `#${poll.id} ${poll.name} (${poll.responses_count} responses)`;
+
+        return (
+          <div key={poll.id}>
+            <Link to={`${match.url}/${poll.id}`} className="lead">
+              {linkText}
+            </Link>
+          </div>
+        )
+      })}
+    </>
+  );
 }
-
-export default withRouter(Polls);

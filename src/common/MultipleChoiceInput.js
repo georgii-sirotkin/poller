@@ -2,17 +2,10 @@ import React from 'react';
 import Form from 'react-bootstrap/Form';
 import orderBy from 'lodash.orderby';
 
-export default class MultipleChoiceInput extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.handleChange = this.handleChange.bind(this);
-    this.handleOtherTextChange = this.handleOtherTextChange.bind(this);
-  }
-
-  handleChange(answerOption, e) {
+export default function MultipleChoiceInput({ question, answer, onAnswerChange }) {
+  function handleChange(answerOption, e) {
     const target = e.target;
-    let other = this.props.answer.other;
+    let other = answer.other;
     let value = null;
 
     if (target.type === 'radio') {
@@ -26,7 +19,7 @@ export default class MultipleChoiceInput extends React.Component {
         other = '';
       }
 
-      value = [...this.props.answer.value];
+      value = [...answer.value];
 
       if (target.checked) {
         value.push(answerOption.id);
@@ -35,26 +28,23 @@ export default class MultipleChoiceInput extends React.Component {
       }
     }
 
-    const answer = {...this.props.answer, value, other};
-    this.props.onAnswerChange(answer);
+    onAnswerChange({ ...answer, value, other });
   }
 
-  handleOtherTextChange(e) {
-    const answer = {...this.props.answer, other: e.target.value};
-    this.props.onAnswerChange(answer);
+  function handleOtherTextChange(e) {
+    onAnswerChange({ ...answer, other: e.target.value });
   }
 
-  isOtherOptionSelected() {
-    const answer = this.props.answer;
+  function isOtherOptionSelected() {
     const selectedOptions = (answer.value instanceof Array) ? answer.value : [answer.value];
 
-    return this.props.question.specialized_question.answer_options.some(option => {
+    return question.specialized_question.answer_options.some(option => {
       return option.is_other && selectedOptions.includes(option.id);
     });
   }
 
-  renderInputs() {
-    const specializedQuestion = this.props.question.specialized_question;
+  function renderInputs() {
+    const specializedQuestion = question.specialized_question;
     const sortedOptions = orderBy(specializedQuestion.answer_options, ['is_other'], ['asc']);
     const inputType = specializedQuestion.only_one_answer_allowed ? 'radio' : 'checkbox';
 
@@ -62,9 +52,9 @@ export default class MultipleChoiceInput extends React.Component {
       let isChecked;
 
       if (inputType === 'radio') {
-        isChecked = this.props.answer.value === answerOption.id
+        isChecked = answer.value === answerOption.id
       } else {
-        isChecked = this.props.answer.value.includes(answerOption.id);
+        isChecked = answer.value.includes(answerOption.id);
       }
 
       return (
@@ -74,27 +64,22 @@ export default class MultipleChoiceInput extends React.Component {
           label={answerOption.text}
           checked={isChecked}
           id={`answer-option-${answerOption.id}`}
-          onChange={(e) => this.handleChange(answerOption, e)} />
+          onChange={(e) => handleChange(answerOption, e)} />
       );
     });
   }
 
-  render() {
-    const inputs = this.renderInputs();
-    const selectedOtherOption = this.isOtherOptionSelected();
+  const otherInput = (
+    <div className="mt-3">
+      <Form.Label>Please specify</Form.Label>
+      <Form.Control type="text" value={answer.other} onChange={handleOtherTextChange} />
+    </div>
+  );
 
-    const otherInput = (
-      <div className="mt-3">
-        <Form.Label>Please specify</Form.Label>
-        <Form.Control type="text" value={this.props.answer.other} onChange={this.handleOtherTextChange} />
-      </div>
-    );
-
-    return (
-        <>
-          {inputs}
-          {selectedOtherOption && otherInput}
-        </>
-    )
-  }
+  return (
+    <>
+      {renderInputs()}
+      {isOtherOptionSelected() && otherInput}
+    </>
+  );
 }

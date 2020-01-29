@@ -1,7 +1,5 @@
 import React from 'react';
-import Form from 'react-bootstrap/Form';
-import InputGroup from 'react-bootstrap/InputGroup';
-import Button from 'react-bootstrap/Button';
+import { Form, InputGroup, Button } from 'react-bootstrap';
 import nanoid from 'nanoid';
 import orderBy from 'lodash.orderby';
 

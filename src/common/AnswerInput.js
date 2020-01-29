@@ -2,18 +2,20 @@ import React from 'react';
 import FreeResponseInput from './FreeResponseInput';
 import MultipleChoiceInput from './MultipleChoiceInput';
 
-export default class AnswerInput extends React.Component {
-  render() {
-    if (this.props.question.specialized_question_type === 'freeResponse') {
-      return <FreeResponseInput
-              answer={this.props.answer}
-              question={this.props.question}
-              onAnswerChange={this.props.onAnswerChange} />
-    }
-
-    return <MultipleChoiceInput
-            answer={this.props.answer}
-            question={this.props.question}
-            onAnswerChange={this.props.onAnswerChange} />
+export default function AnswerInput({ question, answer, onAnswerChange }) {
+  if (question.specialized_question_type === 'freeResponse') {
+    return (
+      <FreeResponseInput
+        answer={answer}
+        question={question}
+        onAnswerChange={onAnswerChange} />
+    );
   }
+
+  return (
+    <MultipleChoiceInput
+      answer={answer}
+      question={question}
+      onAnswerChange={onAnswerChange} />
+  );
 }

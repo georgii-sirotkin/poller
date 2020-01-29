@@ -1,6 +1,6 @@
 import React from 'react';
 import { Form, Button } from 'react-bootstrap';
-import QuestionOptionsBuilder from './QuestionOptionsBuilder';
+import AnswerOptionsBuilder from './AnswerOptionsBuilder';
 
 export default function QuestionBuilder({ question, onDataChange, onTextChange, onTypeChange, onRemove }) {
   function getSpecializedQuestionBuilder() {
@@ -8,7 +8,7 @@ export default function QuestionBuilder({ question, onDataChange, onTextChange, 
 
     if (questionType === 'radio' || questionType === 'checkbox') {
       return (
-        <QuestionOptionsBuilder
+        <AnswerOptionsBuilder
           type={question.type}
           data={question.data}
           onDataChange={onDataChange}/>
